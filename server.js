@@ -6,66 +6,114 @@ app.use(cors());
 
 const station = "Вільногірськ";
 
-// 🚆 Дані поїздів
+// 🚆 Розклад
 const trains = [
   {
-    number: "№6011",
-    route: "Дніпро → П'ятихатки",
-    days: "щоденно",
+    number: "№6008",
+    route: "П'ятихатки-Пас. → Дніпро-Гол.",
     schedule: [
-      { station: "Дніпро", departure: "06:00" },
-      { station: "Вільногірськ", departure: "06:45" },
-      { station: "П'ятихатки", arrival: "07:30" }
+      { station: "П'ятихатки-Пас.", departure: "04:43" },
+      { station: "Вільногірськ", departure: "05:16" },
+      { station: "Дніпро-Гол.", arrival: "07:22" }
+    ]
+  },
+  {
+    number: "№6010",
+    route: "П'ятихатки-Пас. → Дніпро-Гол.",
+    schedule: [
+      { station: "П'ятихатки-Пас.", departure: "05:30" },
+      { station: "Вільногірськ", departure: "06:01" },
+      { station: "Дніпро-Гол.", arrival: "08:09" }
+    ]
+  },
+  {
+    number: "№6005",
+    route: "Дніпро-Гол. → П'ятихатки-Пас.",
+    schedule: [
+      { station: "Дніпро-Гол.", departure: "04:52" },
+      { station: "Вільногірськ", departure: "06:54" },
+      { station: "П'ятихатки-Пас.", arrival: "07:28" }
+    ]
+  },
+  {
+    number: "№6018",
+    route: "П'ятихатки-Пас. → Дніпро-Гол.",
+    schedule: [
+      { station: "П'ятихатки-Пас.", departure: "08:29" },
+      { station: "Вільногірськ", departure: "09:00" },
+      { station: "Дніпро-Гол.", arrival: "10:57" }
     ]
   },
   {
     number: "№6015",
-    route: "Дніпро → Кривий Ріг",
-    days: "пн-пт",
+    route: "Дніпро-Гол. → П'ятихатки-Пас.",
     schedule: [
-      { station: "Дніпро", departure: "08:00" },
-      { station: "Вільногірськ", departure: "08:50" },
-      { station: "Кривий Ріг", arrival: "10:10" }
+      { station: "Дніпро-Гол.", departure: "08:22" },
+      { station: "Вільногірськ", departure: "10:56" },
+      { station: "П'ятихатки-Пас.", arrival: "11:30" }
     ]
   },
   {
-    number: "№6020",
-    route: "П'ятихатки → Дніпро",
-    days: "щоденно",
+    number: "№6038",
+    route: "П'ятихатки-Пас. → Дніпро-Гол.",
     schedule: [
-      { station: "П'ятихатки", departure: "11:00" },
-      { station: "Вільногірськ", departure: "11:50" },
-      { station: "Дніпро", arrival: "12:40" }
+      { station: "П'ятихатки-Пас.", departure: "16:50" },
+      { station: "Вільногірськ", departure: "17:23" },
+      { station: "Дніпро-Гол.", arrival: "19:17" }
     ]
   },
   {
-    number: "№6033",
-    route: "Кривий Ріг → Дніпро",
-    days: "сб-нд",
+    number: "№6035",
+    route: "Дніпро-Гол. → П'ятихатки-Пас.",
     schedule: [
-      { station: "Кривий Ріг", departure: "15:00" },
-      { station: "Вільногірськ", departure: "16:10" },
-      { station: "Дніпро", arrival: "17:00" }
+      { station: "Дніпро-Гол.", departure: "16:38" },
+      { station: "Вільногірськ", departure: "18:50" },
+      { station: "П'ятихатки-Пас.", arrival: "19:22" }
+    ]
+  },
+  {
+    number: "№6037 (1)",
+    route: "Дніпро-Гол. → П'ятихатки-Пас.",
+    schedule: [
+      { station: "Дніпро-Гол.", departure: "17:34" },
+      { station: "Вільногірськ", departure: "19:39" },
+      { station: "П'ятихатки-Пас.", arrival: "20:14" }
+    ]
+  },
+  {
+    number: "№6044",
+    route: "П'ятихатки-Пас. → Дніпро-Гол.",
+    schedule: [
+      { station: "П'ятихатки-Пас.", departure: "20:37" },
+      { station: "Вільногірськ", departure: "21:21" },
+      { station: "Дніпро-Гол.", arrival: "23:12" }
+    ]
+  },
+  {
+    number: "№6037 (2)",
+    route: "Дніпро-Гол. → П'ятихатки-Пас.",
+    schedule: [
+      { station: "Дніпро-Гол.", departure: "20:38" },
+      { station: "Вільногірськ", departure: "22:22" },
+      { station: "П'ятихатки-Пас.", arrival: "23:10" }
     ]
   }
 ];
 
-// 🏠 Головна сторінка
+// 🏠
 app.get("/", (req, res) => {
-  res.send("🚆 Сервер працює");
+  res.send("🚆 Сервер розкладу працює");
 });
 
 // 📡 API
 app.get("/api/trains", (req, res) => {
-
   const result = trains.map(train => {
     const stop = train.schedule.find(s => s.station === station);
 
     return {
       number: train.number,
       route: train.route,
-      time: stop?.departure || stop?.arrival || "—",
-      days: train.days
+      time: stop?.departure || stop?.arrival || "—"
     };
   });
 
@@ -77,7 +125,7 @@ app.get("/api/trains", (req, res) => {
   });
 });
 
-// 🚀 ЖЁСТКО ставим порт 8080
+// 🚀 Railway
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, "0.0.0.0", () => {
