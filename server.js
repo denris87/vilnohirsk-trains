@@ -7,39 +7,70 @@ app.use(cors());
 const station = "Вільногірськ";
 
 const trains = [
+  // П'ятихатки → Дніпро
   {
-    number: "№6008",
-    route: "П'ятихатки-Пас. → Дніпро-Гол.",
-    schedule: [
-      { station: "П'ятихатки-Пас.", departure: "04:43" },
-      { station: "Вільногірськ", departure: "05:16" },
-      { station: "Дніпро-Гол.", arrival: "07:22" }
-    ]
+    number: "6008",
+    from: "П'ятихатки-Пас.",
+    to: "Дніпро-Гол.",
+    schedule: [{ station: "Вільногірськ", departure: "05:16" }]
   },
   {
-    number: "№6010",
-    route: "П'ятихатки-Пас. → Дніпро-Гол.",
-    schedule: [
-      { station: "П'ятихатки-Пас.", departure: "05:30" },
-      { station: "Вільногірськ", departure: "06:01" },
-      { station: "Дніпро-Гол.", arrival: "08:09" }
-    ]
+    number: "6010",
+    from: "П'ятихатки-Пас.",
+    to: "Дніпро-Гол.",
+    schedule: [{ station: "Вільногірськ", departure: "06:01" }]
   },
   {
-    number: "№6005",
-    route: "Дніпро-Гол. → П'ятихатки-Пас.",
-    schedule: [
-      { station: "Дніпро-Гол.", departure: "04:52" },
-      { station: "Вільногірськ", departure: "06:54" },
-      { station: "П'ятихатки-Пас.", arrival: "07:28" }
-    ]
+    number: "6018",
+    from: "П'ятихатки-Пас.",
+    to: "Дніпро-Гол.",
+    schedule: [{ station: "Вільногірськ", departure: "09:00" }]
+  },
+  {
+    number: "6038",
+    from: "П'ятихатки-Пас.",
+    to: "Дніпро-Гол.",
+    schedule: [{ station: "Вільногірськ", departure: "17:23" }]
+  },
+  {
+    number: "6044",
+    from: "П'ятихатки-Пас.",
+    to: "Дніпро-Гол.",
+    schedule: [{ station: "Вільногірськ", departure: "21:21" }]
+  },
+
+  // Дніпро → П'ятихатки
+  {
+    number: "6005",
+    from: "Дніпро-Гол.",
+    to: "П'ятихатки-Пас.",
+    schedule: [{ station: "Вільногірськ", departure: "06:54" }]
+  },
+  {
+    number: "6015",
+    from: "Дніпро-Гол.",
+    to: "П'ятихатки-Пас.",
+    schedule: [{ station: "Вільногірськ", departure: "10:56" }]
+  },
+  {
+    number: "6035",
+    from: "Дніпро-Гол.",
+    to: "П'ятихатки-Пас.",
+    schedule: [{ station: "Вільногірськ", departure: "18:50" }]
+  },
+  {
+    number: "6037",
+    from: "Дніпро-Гол.",
+    to: "П'ятихатки-Пас.",
+    schedule: [{ station: "Вільногірськ", departure: "19:39" }]
+  },
+  {
+    number: "6043",
+    from: "Дніпро-Гол.",
+    to: "П'ятихатки-Пас.",
+    schedule: [{ station: "Вільногірськ", departure: "22:22" }]
   }
 ];
-
-// главная
-app.get("/", (req, res) => {
-  res.send("🚆 Сервер працює");
-});
 
 // API
 app.get("/api/trains", (req, res) => {
@@ -48,8 +79,9 @@ app.get("/api/trains", (req, res) => {
 
     return {
       number: train.number,
-      route: train.route,
-      time: stop?.departure || stop?.arrival || "—"
+      route: `${train.from} → ${train.to}`,
+      direction: train.to,
+      time: stop?.departure || "—"
     };
   });
 
@@ -61,7 +93,6 @@ app.get("/api/trains", (req, res) => {
   });
 });
 
-// запуск
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, "0.0.0.0", () => {
