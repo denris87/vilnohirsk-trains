@@ -1,133 +1,125 @@
-const express = require("express");
-const cors = require("cors");
+<div id="train-widget">
+  <div class="header">🚆 Вільногірськ — Відправлення</div>
+  <div id="train-list">Завантаження...</div>
+</div>
 
-const app = express();
-app.use(cors());
+<style>
+#train-widget {
+  max-width: 340px;
+  font-family: Arial;
+  border-radius: 12px;
+  padding: 10px;
+  background: #111;
+  color: #fff;
+}
 
-const station = "Вільногірськ";
+.header {
+  text-align: center;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #00ff9c;
+}
 
-// 🚆 Розклад
-const trains = [
-  {
-    number: "№6008",
-    route: "П'ятихатки-Пас. → Дніпро-Гол.",
-    schedule: [
-      { station: "П'ятихатки-Пас.", departure: "04:43" },
-      { station: "Вільногірськ", departure: "05:16" },
-      { station: "Дніпро-Гол.", arrival: "07:22" }
-    ]
-  },
-  {
-    number: "№6010",
-    route: "П'ятихатки-Пас. → Дніпро-Гол.",
-    schedule: [
-      { station: "П'ятихатки-Пас.", departure: "05:30" },
-      { station: "Вільногірськ", departure: "06:01" },
-      { station: "Дніпро-Гол.", arrival: "08:09" }
-    ]
-  },
-  {
-    number: "№6005",
-    route: "Дніпро-Гол. → П'ятихатки-Пас.",
-    schedule: [
-      { station: "Дніпро-Гол.", departure: "04:52" },
-      { station: "Вільногірськ", departure: "06:54" },
-      { station: "П'ятихатки-Пас.", arrival: "07:28" }
-    ]
-  },
-  {
-    number: "№6018",
-    route: "П'ятихатки-Пас. → Дніпро-Гол.",
-    schedule: [
-      { station: "П'ятихатки-Пас.", departure: "08:29" },
-      { station: "Вільногірськ", departure: "09:00" },
-      { station: "Дніпро-Гол.", arrival: "10:57" }
-    ]
-  },
-  {
-    number: "№6015",
-    route: "Дніпро-Гол. → П'ятихатки-Пас.",
-    schedule: [
-      { station: "Дніпро-Гол.", departure: "08:22" },
-      { station: "Вільногірськ", departure: "10:56" },
-      { station: "П'ятихатки-Пас.", arrival: "11:30" }
-    ]
-  },
-  {
-    number: "№6038",
-    route: "П'ятихатки-Пас. → Дніпро-Гол.",
-    schedule: [
-      { station: "П'ятихатки-Пас.", departure: "16:50" },
-      { station: "Вільногірськ", departure: "17:23" },
-      { station: "Дніпро-Гол.", arrival: "19:17" }
-    ]
-  },
-  {
-    number: "№6035",
-    route: "Дніпро-Гол. → П'ятихатки-Пас.",
-    schedule: [
-      { station: "Дніпро-Гол.", departure: "16:38" },
-      { station: "Вільногірськ", departure: "18:50" },
-      { station: "П'ятихатки-Пас.", arrival: "19:22" }
-    ]
-  },
-  {
-    number: "№6037 (1)",
-    route: "Дніпро-Гол. → П'ятихатки-Пас.",
-    schedule: [
-      { station: "Дніпро-Гол.", departure: "17:34" },
-      { station: "Вільногірськ", departure: "19:39" },
-      { station: "П'ятихатки-Пас.", arrival: "20:14" }
-    ]
-  },
-  {
-    number: "№6044",
-    route: "П'ятихатки-Пас. → Дніпро-Гол.",
-    schedule: [
-      { station: "П'ятихатки-Пас.", departure: "20:37" },
-      { station: "Вільногірськ", departure: "21:21" },
-      { station: "Дніпро-Гол.", arrival: "23:12" }
-    ]
-  },
-  {
-    number: "№6037 (2)",
-    route: "Дніпро-Гол. → П'ятихатки-Пас.",
-    schedule: [
-      { station: "Дніпро-Гол.", departure: "20:38" },
-      { station: "Вільногірськ", departure: "22:22" },
-      { station: "П'ятихатки-Пас.", arrival: "23:10" }
-    ]
+.train {
+  display: grid;
+  grid-template-columns: 70px 1fr 70px;
+  font-size: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid #333;
+}
+
+.time { 
+  text-align: right; 
+  font-weight: bold;
+}
+
+.route { 
+  text-align: center; 
+}
+
+.number { 
+  color: #aaa; 
+}
+
+.soon {
+  color: #ffcc00;
+}
+
+.passed {
+  color: #ff4d4d;
+}
+</style>
+
+<script>
+const API_URL = "https://vilnohirsk-trains-production.up.railway.app/api/trains";
+
+// 🕒 правильный расчёт времени
+function getMinutesDiff(time) {
+  try {
+    const now = new Date();
+    const [h, m] = time.split(":").map(Number);
+
+    const trainTime = new Date();
+    trainTime.setHours(h, m, 0, 0);
+
+    // если поезд уже прошёл — не ломаем расчёт
+    const diff = Math.floor((trainTime - now) / 60000);
+    return diff;
+  } catch {
+    return null;
   }
-];
+}
 
-// 🏠
-app.get("/", (req, res) => {
-  res.send("🚆 Сервер розкладу працює");
-});
+async function loadTrains() {
+  const list = document.getElementById("train-list");
 
-// 📡 API
-app.get("/api/trains", (req, res) => {
-  const result = trains.map(train => {
-    const stop = train.schedule.find(s => s.station === station);
+  try {
+    const res = await fetch(API_URL);
 
-    return {
-      number: train.number,
-      route: train.route,
-      time: stop?.departure || stop?.arrival || "—"
-    };
-  });
+    if (!res.ok) {
+      list.innerHTML = "Помилка API";
+      return;
+    }
 
-  result.sort((a, b) => a.time.localeCompare(b.time));
+    const data = await res.json();
 
-  res.json({
-    station,
-    trains: result
-  });
-});
+    list.innerHTML = "";
 
-// 🚀 Railway
-const PORT = process.env.PORT || 8080;
+    data.trains.forEach(t => {
+      const minutes = getMinutesDiff(t.time);
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("Сервер працює на порту " + PORT);
-});
+      let label = t.time;
+      let cls = "time";
+
+      if (minutes !== null) {
+        if (minutes < -5) {
+          cls += " passed";
+          label = "поїхав";
+        } else if (minutes >= 0 && minutes <= 10) {
+          cls += " soon";
+          label = "≈ " + minutes + " хв";
+        }
+      }
+
+      const el = document.createElement("div");
+      el.className = "train";
+
+      el.innerHTML = `
+        <div class="number">${t.number}</div>
+        <div class="route">${t.route}</div>
+        <div class="${cls}">${label}</div>
+      `;
+
+      list.appendChild(el);
+    });
+
+  } catch (e) {
+    list.innerHTML = "Помилка завантаження";
+    console.error(e);
+  }
+}
+
+// 🚀 запуск
+loadTrains();
+setInterval(loadTrains, 30000);
+</script>
