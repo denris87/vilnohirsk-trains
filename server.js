@@ -55,7 +55,7 @@ app.get("/", (req, res) => {
   res.send("🚆 Сервер розкладу Вільногірськ працює");
 });
 
-// 📡 API — по станції Вільногірськ
+// 📡 API — по станції
 app.get("/api/trains", (req, res) => {
 
   const result = trains.map(train => {
@@ -78,15 +78,14 @@ app.get("/api/trains", (req, res) => {
   });
 });
 
-// 📡 API — повний маршрут (для майбутнього)
+// 📡 повний маршрут
 app.get("/api/trains/full", (req, res) => {
   res.json(trains);
 });
 
+// 🚀 ВАЖНО ДЛЯ RAILWAY
+const PORT = process.env.PORT;
 
-// 🚀 запуск
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log("Сервер працює на порту " + PORT);
 });
