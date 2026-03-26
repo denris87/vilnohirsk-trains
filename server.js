@@ -50,7 +50,7 @@ const trains = [
   {
     number: "6005",
     from: "Дніпро-Гол.",
-    to: "П'ятихатки-Пас.",
+    to: "П'ятихатки-Стик.",
     schedule: [
       { station: "Вільногірськ", departure: "06:54" }
     ]
