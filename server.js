@@ -25,7 +25,7 @@ const trains = [
   },
   {
     number: "6018",
-    from: "П'ятихатки-Пас.",
+    from: "П'ятихатки-Стик.",
     to: "Дніпро-Гол.",
     schedule: [
       { station: "Вільногірськ", departure: "09:00" }
@@ -41,7 +41,7 @@ const trains = [
   },
   {
     number: "6044",
-    from: "П'ятихатки-Пас.",
+    from: "П'ятихатки-Стик.",
     to: "Дніпро-Гол.",
     schedule: [
       { station: "Вільногірськ", departure: "21:21" }
@@ -66,7 +66,7 @@ const trains = [
   {
     number: "6035",
     from: "Дніпро-Гол.",
-    to: "П'ятихатки-Пас.",
+    to: "П'ятихатки-Стик.",
     schedule: [
       { station: "Вільногірськ", departure: "18:50" }
     ]
