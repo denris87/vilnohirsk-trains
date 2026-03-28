@@ -44,7 +44,7 @@ const changesSchedule6035 = [
 const order = ["6008","6010","6005","6018","6015","6038","6035","6037","6044","6043"];
 
 app.get("/", (req, res) => {
-  res.send("🚆 Сервер працює і віддає розклад!");
+  res.send("🚆 Сервер працює!");
 });
 
 app.get("/api/trains", (req, res) => {
@@ -59,24 +59,31 @@ app.get("/api/trains", (req, res) => {
 
     let finalNote = changes[num] || "змін немає...";
 
-    // СТВОРЮЄМО КРАСИВУ СІТКУ (ЯК ВГОРІ) ДЛЯ ЗМІНЕНОГО РОЗКЛАДУ
+    // --- ФОРМУВАННЯ ДИЗАЙНУ ЯК У ГОЛОВНІЙ ТАБЛИЦІ ---
     if (num === "6035") {
+      // Розраховуємо кількість рядків, щоб сітка заповнювалась зверху-вниз, як у тебе на сайті
+      const numRows = Math.ceil(changesSchedule6035.length / 3);
+
       let gridItems = changesSchedule6035.map((s, i) => {
-        // Рендеримо кожен рядок: Жовта цифра, Назва станції (зліва) і Час (справа)
+        // Додаємо виділення фону для станції "Вільногірськ", як на скріншоті (пункт 25)
+        let isCurrent = s[0].includes(stationName);
+        let bgStyle = isCurrent ? "background: rgba(255, 255, 255, 0.08); border-radius: 4px;" : "";
+
         return `
-          <div style="display: flex; justify-content: space-between; padding: 4px 10px; border-bottom: 1px dashed rgba(255, 77, 77, 0.3);">
-            <span style="text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+          <div style="display: flex; justify-content: space-between; padding: 4px 8px; margin-bottom: 2px; ${bgStyle}">
+            <span style="text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff;">
               <span style="color: #f1c40f; margin-right: 6px; font-weight: bold;">${i + 1}.</span>${s[0]}
             </span>
-            <span style="font-weight: bold;">${s[1]}</span>
+            <span style="font-weight: bold; color: #ffffff;">${s[1]}</span>
           </div>`;
       }).join("");
 
-      // Обертаємо рядки у grid на 3 колонки
+      // Обертаємо в контейнер з напівпрозорим "скляним" фоном, білим текстом і Grid (зверху-вниз)
       finalNote = `${finalNote}
-        <div style="margin-top: 20px; width: 100%; border-top: 1px dashed #ff4d4d; padding-top: 15px;">
-          <div style="text-align: center; font-weight: bold; margin-bottom: 15px; color: #ff4d4d;">ЗМІНЕНИЙ РОЗКЛАД:</div>
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 20px; text-align: left; width: 100%;">
+        <div style="margin-top: 20px; width: 100%;">
+          <div style="text-align: center; font-weight: bold; margin-bottom: 12px; color: #ff4d4d; letter-spacing: 0.5px;">ЗМІНЕНИЙ РОЗКЛАД:</div>
+          
+          <div style="background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 15px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(${numRows}, auto); grid-auto-flow: column; gap: 4px 20px;">
             ${gridItems}
           </div>
         </div>`;
