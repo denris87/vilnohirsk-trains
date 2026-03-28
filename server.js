@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 
+// Дозволяємо запити з будь-якого сайту (твого віджета)
 app.use(cors());
 
 const stationName = "Вільногірськ";
@@ -43,78 +44,38 @@ const changesSchedule6035 = [
 
 const order = ["6008","6010","6005","6018","6015","6038","6035","6037","6044","6043"];
 
-// --- ФУНКЦІЯ ПЕРЕВІРКИ ЧАСУ (для основної таблиці) ---
-function isTimePassed(timeStr) {
-  if (!timeStr || timeStr === "---") return true; 
-  
-  const [h, m] = timeStr.split(":").map(Number);
-  const trainMins = h * 60 + m;
-
-  const now = new Date();
-  const formatter = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Kyiv', hour: '2-digit', minute: '2-digit' });
-  const [cH, cM] = formatter.format(now).split(':').map(Number);
-  const currentMins = cH * 60 + cM;
-
-  return currentMins >= trainMins;
-}
-
+// Головна сторінка для перевірки працездатності сервера
 app.get("/", (req, res) => {
-  res.send("🚆 Сервер працює!");
+  res.send("🚆 Сервер працює і віддає розклад!");
 });
 
+// API, до якого звертається твій сайт
 app.get("/api/trains", (req, res) => {
   const result = order.map(num => {
     const schedule = fullSchedules[num] || [];
+    // Шукаємо час відправлення конкретно з Вільногірська
     const stop = schedule.find(s => s[0].includes(stationName));
     
+    // Формуємо маршрут від першої до останньої станції
     let routeStr = "—";
     if (schedule.length > 0) {
-      // НЕРОЗРИВНІ ПРОБІЛИ (\u00A0) для маршруту (в один рядок на телефоні)
-      routeStr = `${schedule[0][0]} → ${schedule[schedule.length - 1][0]}`.replace(/ /g, '\u00A0');
+      routeStr = `${schedule[0][0]} → ${schedule[schedule.length - 1][0]}`;
     }
 
-    let finalNote = changes[num] || "змін немає...";
-
-    // --- ЗМІНЕНИЙ РОЗКЛАД 6035 (БІЛИЙ ЧАС + ШТРИХОВІ ЛІНІЇ) ---
-    if (num === "6035") {
-      const numRows = Math.ceil(changesSchedule6035.length / 3);
-
-      let gridItems = changesSchedule6035.map((s, i) => {
-        let isCurrent = s[0].includes(stationName);
-        let bgStyle = isCurrent ? "background: rgba(255, 255, 255, 0.08); border-radius: 4px;" : "";
-
-        // ДОДАНО: border-bottom (штрихова лінія) + білий час (#ffffff)
-        return `
-          <div style="display: flex; justify-content: space-between; padding: 4px 8px; margin-bottom: 2px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15); ${bgStyle}">
-            <span style="text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff;">
-              <span style="color: #f1c40f; margin-right: 6px; font-weight: bold;">${i + 1}.</span>${s[0]}
-            </span>
-            <span style="font-weight: bold; color: #ffffff;">${s[1]}</span>
-          </div>`;
-      }).join("");
-
-      finalNote = `${finalNote}
-        <div style="margin-top: 20px; width: 100%;">
-          <div style="text-align: center; font-weight: bold; margin-bottom: 12px; color: #ff4d4d; letter-spacing: 0.5px;">ЗМІНЕНИЙ РОЗКЛАД:</div>
-          <div style="background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 15px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(${numRows}, auto); grid-auto-flow: column; gap: 4px 20px;">
-            ${gridItems}
-          </div>
-        </div>`;
-    }
-
-    // --- ОСНОВНИЙ РОЗКЛАД (ЗЕЛЕНИЙ АБО СІРИЙ ЧАС ДЛЯ ВСІХ ПОЇЗДІВ) ---
-    const coloredSchedule = schedule.map(s => {
-      let timeColor = isTimePassed(s[1]) ? "#888888" : "#2ecc71";
-      return [s[0], `<span style="color: ${timeColor};">${s[1]}</span>`];
-    });
-
-    return {
+    const trainData = {
       number: num,
       route: routeStr,
-      time: stop ? stop[1] : "—",     
-      fullSchedule: coloredSchedule,  // Віддаємо розмальоване основне розклад
-      note: finalNote 
+      time: stop ? stop[1] : "—",
+      fullSchedule: schedule,
+      note: changes[num] || "змін немає..."
     };
+
+    // Додаємо альтернативний розклад для 6035, якщо він є
+    if (num === "6035") {
+      trainData.altSchedule = changesSchedule6035;
+    }
+
+    return trainData;
   });
 
   res.json({
