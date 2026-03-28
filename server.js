@@ -49,7 +49,6 @@ app.get("/", (req, res) => {
 
 app.get("/api/trains", (req, res) => {
   const result = order.map(num => {
-    // 1. Берем ОСНОВНОЕ расписание для верхней таблицы (ее не меняем)
     const schedule = fullSchedules[num] || [];
     const stop = schedule.find(s => s[0].includes(stationName));
     
@@ -60,24 +59,26 @@ app.get("/api/trains", (req, res) => {
 
     let finalNote = changes[num] || "змін немає...";
 
-    // 2. Если это 6035, добавляем HTML-ТАБЛИЦУ в текст заметки
+    // СТВОРЮЄМО КРАСИВУ СІТКУ (ЯК ВГОРІ) ДЛЯ ЗМІНЕНОГО РОЗКЛАДУ
     if (num === "6035") {
-      // Собираем строки таблицы
-      let rowsHtml = changesSchedule6035.map(s => 
-        `<tr>
-          <td style="padding: 2px 0; border-bottom: 1px dashed rgba(255,0,0,0.3);">${s[0]}</td>
-          <td style="text-align: right; padding: 2px 0; border-bottom: 1px dashed rgba(255,0,0,0.3); font-weight: bold;">${s[1]}</td>
-        </tr>`
-      ).join("");
-      
-      // Склеиваем основной текст с линией и таблицей
+      let gridItems = changesSchedule6035.map((s, i) => {
+        // Рендеримо кожен рядок: Жовта цифра, Назва станції (зліва) і Час (справа)
+        return `
+          <div style="display: flex; justify-content: space-between; padding: 4px 10px; border-bottom: 1px dashed rgba(255, 77, 77, 0.3);">
+            <span style="text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+              <span style="color: #f1c40f; margin-right: 6px; font-weight: bold;">${i + 1}.</span>${s[0]}
+            </span>
+            <span style="font-weight: bold;">${s[1]}</span>
+          </div>`;
+      }).join("");
+
+      // Обертаємо рядки у grid на 3 колонки
       finalNote = `${finalNote}
-        <br><br>
-        <div style="border-top: 1px dashed #ff4d4d; padding-top: 10px; color: #ff4d4d; width: 100%;">
-          <strong>ЗМІНЕНИЙ РОЗКЛАД:</strong>
-          <table style="width: 100%; margin-top: 8px; font-size: 0.9em; border-collapse: collapse;">
-            ${rowsHtml}
-          </table>
+        <div style="margin-top: 20px; width: 100%; border-top: 1px dashed #ff4d4d; padding-top: 15px;">
+          <div style="text-align: center; font-weight: bold; margin-bottom: 15px; color: #ff4d4d;">ЗМІНЕНИЙ РОЗКЛАД:</div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 20px; text-align: left; width: 100%;">
+            ${gridItems}
+          </div>
         </div>`;
     }
 
@@ -85,9 +86,8 @@ app.get("/api/trains", (req, res) => {
       number: num,
       route: routeStr,
       time: stop ? stop[1] : "—",
-      fullSchedule: schedule,  // Верхняя сетка на сайте строится из этого (не трогаем)
-      note: finalNote,         // Текст + встроенная нижняя таблица
-      altSchedule: (num === "6035") ? changesSchedule6035 : null // На всякий случай оставляем массив
+      fullSchedule: schedule,
+      note: finalNote 
     };
   });
 
