@@ -43,6 +43,29 @@ const changesSchedule6035 = [
 
 const order = ["6008","6010","6005","6018","6015","6038","6035","6037","6044","6043"];
 
+// --- ДОПОМІЖНА ФУНКЦІЯ ДЛЯ КОЛЬОРУ ЧАСУ ---
+function getTimeColor(timeStr) {
+  if (!timeStr || timeStr === "---") return "#888888"; // Сірий, якщо немає часу
+  
+  const now = new Date();
+  // Отримуємо поточний час за Києвом
+  const kievTime = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Kiev',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(now);
+  
+  const [currH, currM] = kievTime.split(':').map(Number);
+  const currentMinutes = currH * 60 + currM;
+
+  const [trainH, trainM] = timeStr.split(':').map(Number);
+  const trainMinutes = trainH * 60 + trainM;
+
+  // Якщо час поїзда більший або дорівнює поточному — зелений, інакше — сірий
+  return trainMinutes >= currentMinutes ? "#2ecc71" : "#888888"; 
+}
+
 app.get("/", (req, res) => {
   res.send("🚆 Сервер працює!");
 });
@@ -54,35 +77,40 @@ app.get("/api/trains", (req, res) => {
     
     let routeStr = "—";
     if (schedule.length > 0) {
-      routeStr = `${schedule[0][0]} → ${schedule[schedule.length - 1][0]}`;
+      // ЗАМІНА ДЕФІСІВ І ПРОБІЛІВ НА НЕРОЗРИВНІ (Unicode)
+      // Це змусить телефон показувати маршрут в один рядок
+      const startSt = schedule[0][0].replace(/-/g, '\u2011').replace(/ /g, '\u00A0');
+      const endSt = schedule[schedule.length - 1][0].replace(/-/g, '\u2011').replace(/ /g, '\u00A0');
+      routeStr = `${startSt}\u00A0→\u00A0${endSt}`;
     }
 
+    // Оригінальний текст змін (не чіпаємо)
     let finalNote = changes[num] || "змін немає...";
 
-    // --- ФОРМУВАННЯ ДИЗАЙНУ ЯК У ГОЛОВНІЙ ТАБЛИЦІ ---
+    // --- ФОРМУВАННЯ СІТКИ З ДИНАМІЧНИМ КОЛЬОРОМ ---
     if (num === "6035") {
-      // Розраховуємо кількість рядків, щоб сітка заповнювалась зверху-вниз, як у тебе на сайті
       const numRows = Math.ceil(changesSchedule6035.length / 3);
 
       let gridItems = changesSchedule6035.map((s, i) => {
-        // Додаємо виділення фону для станції "Вільногірськ", як на скріншоті (пункт 25)
         let isCurrent = s[0].includes(stationName);
         let bgStyle = isCurrent ? "background: rgba(255, 255, 255, 0.08); border-radius: 4px;" : "";
+        
+        // Визначаємо колір для часу
+        let dynamicColor = getTimeColor(s[1]);
 
         return `
           <div style="display: flex; justify-content: space-between; padding: 4px 8px; margin-bottom: 2px; ${bgStyle}">
             <span style="text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff;">
               <span style="color: #f1c40f; margin-right: 6px; font-weight: bold;">${i + 1}.</span>${s[0]}
             </span>
-            <span style="font-weight: bold; color: #ffffff;">${s[1]}</span>
+            <span style="font-weight: bold; color: ${dynamicColor};">${s[1]}</span>
           </div>`;
       }).join("");
 
-      // Обертаємо в контейнер з напівпрозорим "скляним" фоном, білим текстом і Grid (зверху-вниз)
+      // Обертаємо в контейнер
       finalNote = `${finalNote}
         <div style="margin-top: 20px; width: 100%;">
           <div style="text-align: center; font-weight: bold; margin-bottom: 12px; color: #ff4d4d; letter-spacing: 0.5px;">ЗМІНЕНИЙ РОЗКЛАД:</div>
-          
           <div style="background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 15px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(${numRows}, auto); grid-auto-flow: column; gap: 4px 20px;">
             ${gridItems}
           </div>
