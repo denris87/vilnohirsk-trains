@@ -43,53 +43,54 @@ const changesSchedule6035 = [
 
 const order = ["6008","6010","6005","6018","6015","6038","6035","6037","6044","6043"];
 
-// --- ФУНКЦІЯ ДЛЯ ПЕРЕВІРКИ ЧАСУ (ЗЕЛЕНИЙ / СІРИЙ) ---
+// --- ФУНКЦІЯ ПЕРЕВІРКИ ЧАСУ ---
 function isTimePassed(timeStr) {
-  if (!timeStr || timeStr === "---") return true; // Якщо станцію пропущено, робимо час сірим
+  // Якщо зупинку пропущено (---), робимо її одразу сірою
+  if (!timeStr || timeStr === "---") return true; 
+  
   const [h, m] = timeStr.split(":").map(Number);
   const trainMins = h * 60 + m;
 
+  // Отримуємо актуальний час по Києву
   const now = new Date();
-  // Отримуємо поточний час саме по Києву
   const formatter = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Kyiv', hour: '2-digit', minute: '2-digit' });
   const [cH, cM] = formatter.format(now).split(':').map(Number);
   const currentMins = cH * 60 + cM;
 
-  return currentMins >= trainMins; // Якщо час вже пройшов, повертаємо true
+  return currentMins >= trainMins; // true = вже поїхав (сірий), false = ще не був (зелений)
 }
 
 app.get("/", (req, res) => {
-  res.send("🚆 Сервер працює!");
+  res.send("🚆 Сервер працює і віддає розклад!");
 });
 
 app.get("/api/trains", (req, res) => {
   const result = order.map(num => {
     const schedule = fullSchedules[num] || [];
+    
+    // Шукаємо оригінальний (нерозфарбований) час для основної сторінки
     const stop = schedule.find(s => s[0].includes(stationName));
     
     let routeStr = "—";
     if (schedule.length > 0) {
-      // КЛЮЧОВА ЗМІНА ДЛЯ МОБІЛОК: Замінюємо звичайні пробіли на нерозривні (\u00A0).
-      // Це змусить браузер тримати весь маршрут в один рядок!
+      // КЛЮЧОВА ЗМІНА 1: Використовуємо нерозривні пробіли (\u00A0), щоб маршрут не переносився
       routeStr = `${schedule[0][0]} → ${schedule[schedule.length - 1][0]}`.replace(/ /g, '\u00A0');
     }
 
     let finalNote = changes[num] || "змін немає...";
 
-    // --- ФОРМУВАННЯ СІТКИ З КОЛЬОРОВИМ ЧАСОМ ---
+    // --- ТАБЛИЦЯ ДЛЯ ЗМІНЕНОГО РОЗКЛАДУ 6035 ---
     if (num === "6035") {
       const numRows = Math.ceil(changesSchedule6035.length / 3);
 
       let gridItems = changesSchedule6035.map((s, i) => {
         let isCurrent = s[0].includes(stationName);
         let bgStyle = isCurrent ? "background: rgba(255, 255, 255, 0.08); border-radius: 4px;" : "";
-        
-        // Визначаємо колір для часу: зелений якщо ще не був, сірий якщо пройшов
-        let timeColor = isTimePassed(s[1]) ? "#888888" : "#2ecc71";
+        let timeColor = isTimePassed(s[1]) ? "#888888" : "#2ecc71"; // Сірий або Зелений
 
         return `
           <div style="display: flex; justify-content: space-between; padding: 4px 8px; margin-bottom: 2px; ${bgStyle}">
-            <span style="text-align: left; white-space: nowrap; color: #ffffff;">
+            <span style="text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff;">
               <span style="color: #f1c40f; margin-right: 6px; font-weight: bold;">${i + 1}.</span>${s[0]}
             </span>
             <span style="font-weight: bold; color: ${timeColor};">${s[1]}</span>
@@ -99,18 +100,24 @@ app.get("/api/trains", (req, res) => {
       finalNote = `${finalNote}
         <div style="margin-top: 20px; width: 100%;">
           <div style="text-align: center; font-weight: bold; margin-bottom: 12px; color: #ff4d4d; letter-spacing: 0.5px;">ЗМІНЕНИЙ РОЗКЛАД:</div>
-          
           <div style="background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 15px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(${numRows}, auto); grid-auto-flow: column; gap: 4px 20px;">
             ${gridItems}
           </div>
         </div>`;
     }
 
+    // КЛЮЧОВА ЗМІНА 2: Фарбуємо час для ВСІХ основних шторок у масиві fullSchedule
+    const coloredSchedule = schedule.map(s => {
+      let timeColor = isTimePassed(s[1]) ? "#888888" : "#2ecc71";
+      // Обертаємо час у HTML-тег <span>, щоб сайт прочитав колір
+      return [s[0], `<span style="color: ${timeColor};">${s[1]}</span>`];
+    });
+
     return {
       number: num,
-      route: routeStr, // Рядок тепер містить нерозривні пробіли
-      time: stop ? stop[1] : "—",
-      fullSchedule: schedule,
+      route: routeStr,
+      time: stop ? stop[1] : "—",     // Чистий час для головної сторінки
+      fullSchedule: coloredSchedule,  // Віддаємо масив із кольоровими тегами для шторки
       note: finalNote 
     };
   });
