@@ -3,19 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Вільногірськ Онлайн - Dark Glass</title>
+<title>Вільногірськ Онлайн</title>
 
 <style>
 :root {
   --highlight-color: #ffcc00; 
-  /* Темні кольори блоків для максимального контрасту */
-  --glass-bg: rgba(0, 0, 0, 0.45);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-light: rgba(255, 255, 255, 0.15);
-  --glass-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
-  
+  --widget-bg: rgba(0, 0, 0, 0.6);
   --time-green: #00ff9c;
-  --time-passed: rgba(255, 255, 255, 0.4);
+  --time-passed: #888;
 }
 
 html, body { 
@@ -23,53 +18,40 @@ html, body {
   padding: 0; 
   height: 100%; 
 }
-
 * { 
   -webkit-user-select: none; 
   user-select: none; 
   box-sizing: border-box; 
-  -webkit-tap-highlight-color: transparent; 
 }
 
 body {
   color: #fff;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: Arial, sans-serif;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
-  background: linear-gradient(-45deg, #1e3c72, #2a5298, #009ffd, #2af598, #009ffd);
-  background-size: 300% 300%;
-  animation: gradientMove 30s ease-in-out infinite alternate;
+  background: linear-gradient(-45deg, #f1df30, #04b6cb, #1cbca4, #c5d444, #26bc93, #a5ca49, #8cc454, #41bc81, #74bf54, #53bc67);
+  background-size: 400% 400%;
+  animation: gradientMove 60s ease infinite;
 }
 
 @keyframes gradientMove {
   0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .wrapper { 
   width: 100%; 
   max-width: 900px; 
-  padding: 15px; 
+  padding: 10px; 
 }
 
 .container { 
   display: flex; 
   flex-direction: column; 
-  gap: 15px; 
-}
-
-/* ОСНОВНИЙ КЛАС ТЕМНОГО СКЛА */
-.liquid-glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  border-top: 1px solid var(--glass-border-light);
-  border-left: 1px solid var(--glass-border-light);
-  box-shadow: var(--glass-shadow);
-  border-radius: 28px;
+  gap: 10px; 
 }
 
 /* ШАПКА */
@@ -77,210 +59,132 @@ body {
   display: flex; 
   flex-direction: row; 
   justify-content: space-between; 
-  gap: 12px; 
+  gap: 8px; 
   width: 100%; 
 }
 
 .widget {
-  padding: 15px 10px; 
+  background: var(--widget-bg); 
+  padding: 10px 6px; 
+  border-radius: 12px;
   flex: 1; 
-  min-height: 125px; 
+  min-height: 110px; 
   display: flex; 
   flex-direction: column; 
   justify-content: center; 
   align-items: center; 
   overflow: hidden;
-  position: relative;
 }
 
-/* Світлий відблиск зверху віджета */
-.widget::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 35%;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
-  border-radius: 28px 28px 0 0;
-  pointer-events: none;
-}
+.datetime { text-align: center; font-family: "Courier New", monospace; width: 100%; }
+#date { font-size: clamp(18px, 4.8vw, 26px); font-weight: 900; white-space: nowrap; }
+#time { font-size: clamp(16px, 4.2vw, 22px); font-weight: 900; white-space: nowrap; color: #fff; }
 
-.datetime { text-align: center; width: 100%; }
-#date { font-size: clamp(18px, 4.8vw, 24px); font-weight: 800; white-space: nowrap; letter-spacing: 0.5px; }
-#time { font-size: clamp(16px, 4.2vw, 20px); font-weight: 700; white-space: nowrap; color: #fff; font-variant-numeric: tabular-nums; }
-
-/* Виправлено відступи між днями тижня для дрібних екранів */
-.weekdays { display: flex; justify-content: center; gap: clamp(2px, 1.2vw, 6px); font-size: clamp(12px, 3.2vw, 15px); font-weight: 700; margin: 8px 0; text-transform: uppercase; }
-.day { color: rgba(255,255,255,0.4); transition: 0.3s ease; }
-.day.active { background: rgba(255,255,255,0.9); color: #1e3c72; border-radius: 8px; padding: 2px 7px; box-shadow: 0 2px 10px rgba(255,255,255,0.3); }
+.weekdays { display: flex; justify-content: center; gap: 4px; font-size: clamp(16px, 4vw, 20px); font-weight: 900; margin: 6px 0; }
+.day { opacity: 0.4; }
+.day.active { background: red; border-radius: 4px; padding: 0 5px; opacity: 1; }
 
 /* ПОГОДА */
-.weather-box { position: relative; width: 100%; height: 95px; display: flex; align-items: center; justify-content: center; }
-.weather-content { position: absolute; width: 100%; transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1); opacity: 0; transform: translateY(10px) scale(0.95); text-align: center; pointer-events: none; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-.weather-content.active { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-.weather-city { font-weight: 700; font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;}
-.weather-temp { font-size: clamp(24px, 6.5vw, 32px); font-weight: 800; white-space: nowrap; text-shadow: 0 2px 10px rgba(0,0,0,0.4); line-height: 1.1; }
-.weather-wind { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 6px; font-weight: 500; }
+.weather-box { position: relative; width: 100%; height: 85px; display: flex; align-items: center; justify-content: center; }
+.weather-content { position: absolute; width: 100%; transition: opacity 1s ease-in-out; opacity: 0; text-align: center; pointer-events: none; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.weather-content.active { opacity: 1; pointer-events: auto; }
+.weather-city { font-weight: bold; font-size: 13px; color: #04b6cb; margin-bottom: 2px; }
+.weather-temp { font-size: clamp(20px, 5.5vw, 26px); font-weight: bold; white-space: nowrap; }
+.weather-wind { font-size: 11px; color: #aaa; margin-top: 2px; }
 
 /* ГРУПА ДЛЯ КОРЕШКІВ І РОЗКЛАДУ */
-.schedule-group { display: flex; flex-direction: column; gap: 8px;}
+.schedule-group { display: flex; flex-direction: column; }
 
-/* ТАБИ */
+/* ТАБИ (КОРЕШКИ ЯК ПАПКА) */
 .tabs-nav { 
   display: flex; 
   width: 100%; 
-  padding: 6px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-radius: 20px;
+  min-width: 240px; 
+  gap: 4px; 
+  margin-bottom: -1px; 
   position: relative; 
   z-index: 2; 
-  box-shadow: inset 0 2px 10px rgba(0,0,0,0.4), 0 4px 15px rgba(0,0,0,0.2);
-  border: 1px solid var(--glass-border);
 }
 .tab-btn { 
   flex: 1; 
   padding: 12px 5px; 
-  border: none;
-  background: transparent; 
-  color: rgba(255, 255, 255, 0.55); 
-  font-weight: 700; 
+  border: 1px solid transparent;
+  border-bottom: none; 
+  background: rgba(0, 0, 0, 0.4); 
+  color: rgba(255, 255, 255, 0.6); 
+  font-weight: bold; 
   cursor: pointer; 
-  border-radius: 14px; 
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
-  font-size: clamp(12px, 3.5vw, 14px); 
+  border-radius: 16px 16px 0 0; 
+  transition: 0.3s; 
+  font-size: clamp(10px, 3.5vw, 13px); 
+  text-transform: uppercase; 
   white-space: nowrap;
 }
 .tab-btn.active { 
-  background: rgba(40, 40, 40, 0.85); 
-  color: #ffffff; 
-  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15);
+  background: var(--widget-bg); 
+  color: #fff; 
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--widget-bg);
+  padding-bottom: 13px; 
 }
 
 .content-section { display: none; }
-.content-section.active { display: block; animation: slideUpFade 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
-@keyframes slideUpFade { 
-  from { opacity: 0; transform: translateY(15px); } 
-  to { opacity: 1; transform: translateY(0); } 
-}
+.content-section.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* ОСНОВНИЙ БЛОК РОЗКЛАДУ */
 .main-list-widget { 
-  padding: 20px 10px; 
+  background: var(--widget-bg); 
+  padding: 15px 10px; 
+  border-radius: 0 16px 16px 16px; 
   position: relative; 
   z-index: 1; 
+  border: 1px solid rgba(255,255,255,0.1); 
 }
 
 /* ЗАГАЛЬНІ СТИЛІ СПИСКУ */
-.table-head { display: grid; grid-template-columns: 18% 1fr 20%; align-items: center; justify-items: center; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 5px; font-size: 12px; text-transform: uppercase; color: rgba(255,255,255,0.5); letter-spacing: 1px;}
+.table-head { display: grid; grid-template-columns: 15% 1fr 20%; align-items: center; justify-items: center; font-weight: 800; border-bottom: 2px solid #aaa; padding-bottom: 8px; margin-bottom: 5px; font-size: 14px; text-transform: uppercase; }
+.train { display: grid; grid-template-columns: 15% 1fr 20%; align-items: center; justify-items: center; padding: 12px 0; border-bottom: 1px dashed rgba(255,255,255,0.15); cursor: pointer; }
+.train-num-box { position: relative; font-weight: bold; display: inline-block; font-size: 16px; }
+.route-text { font-weight: 600; text-align: center; font-size: clamp(12px, 3.5vw, 15px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; padding: 0 5px; }
 
-.train { 
-  display: grid; 
-  grid-template-columns: 18% 1fr 20%; 
-  align-items: center; 
-  justify-items: center; 
-  padding: 14px 0; 
-  border-bottom: 1px solid rgba(255,255,255,0.06); 
-  cursor: pointer; 
-  transition: background 0.3s; 
-  border-radius: 12px; 
-  min-height: 60px;
-}
-.train:hover { background: rgba(255,255,255,0.05); }
-.train:last-child { border-bottom: none; }
-
-.train-num-box { position: relative; font-weight: 800; display: inline-block; font-size: 15px; background: rgba(255,255,255,0.1); padding: 5px 8px; border-radius: 8px; box-shadow: inset 0 1px 1px rgba(255,255,255,0.1); }
-
-/* ЯСКРАВО БІЛИЙ КОЛІР ДЛЯ МАРШРУТІВ ТА АВТОБУСІВ */
-.route-text { 
-  font-weight: 700; 
-  color: #ffffff; /* Примусово білий колір */
-  text-align: center; 
-  font-size: clamp(13px, 3.8vw, 15px); 
-  width: 100%; 
-  padding: 0 8px; 
-  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-  white-space: normal; 
-  word-wrap: break-word;
-  line-height: 1.3;
-}
-
-.time-val { font-weight: 800; font-size: clamp(15px, 4vw, 18px); font-variant-numeric: tabular-nums; }
-.time-val.soon { color: var(--highlight-color); text-shadow: 0 0 10px rgba(255, 204, 0, 0.4); }
-.time-val.future { color: var(--time-green); text-shadow: 0 0 10px rgba(0, 255, 156, 0.3); }
+.time-val { font-weight: bold; font-size: clamp(14px, 3.8vw, 18px); }
+.time-val.soon { color: #ffcc00; }
+.time-val.future { color: var(--time-green); }
 .time-val.passed { color: var(--time-passed); }
 
 /* ЧЕРВОНА КРАПКА */
 .alert-dot { 
   position: absolute; 
   top: -4px; 
-  right: -4px; 
-  width: 8px; 
-  height: 8px; 
+  right: -8px; 
+  width: 7px; 
+  height: 7px; 
   background: #ff3b3b; 
   border-radius: 50%; 
-  border: 1px solid rgba(0,0,0,0.5);
-  animation: pulseAlert 1.5s infinite; 
+  animation: blink 0.7s infinite alternate; 
 }
-@keyframes pulseAlert { 
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 59, 59, 0.7); } 
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255, 59, 59, 0); } 
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 59, 59, 0); } 
+@keyframes blink { 
+  0% { opacity: 1; box-shadow: 0 0 6px #ff3b3b; } 
+  100% { opacity: 0.3; box-shadow: 0 0 1px #ff3b3b; } 
 }
 
 /* ШТОРКИ РОЗКЛАДУ */
-.details { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); background: rgba(0,0,0,0.25); border-radius: 16px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.3); }
-.details.open { max-height: 5000px; opacity: 1; padding: 15px; margin-top: 5px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+.details { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.4s ease; background: rgba(255,255,255,0.03); border-radius: 10px; }
+.details.open { max-height: 5000px; opacity: 1; padding: 10px; margin-top: 5px; border: 1px solid rgba(255,255,255,0.05); }
+.schedule-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+@media (max-width: 600px) { .schedule-grid { grid-template-columns: 1fr; } }
+.schedule-row { display: flex; justify-content: space-between; padding: 4px 6px; border-bottom: 1px dashed rgba(255,255,255,0.1); font-size: 11px; align-items: center;}
+.row-highlight { background: rgba(255, 204, 0, 0.15) !important; border-radius: 4px; color: var(--highlight-color) !important; font-weight: bold; }
+.station-number { color: #ffcc00; font-weight: bold; margin-right: 4px; }
 
-/* СІТКИ (ВИПРАВЛЕНО ДЛЯ МОБІЛЬНИХ) */
-.schedule-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.bus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-@media (max-width: 600px) { 
-  .schedule-grid { grid-template-columns: 1fr; } 
-  /* Автобуси тепер стають в 1 стовпчик на мобільних, щоб текст не вилазив */
-  .bus-grid { grid-template-columns: 1fr; } 
-}
-
-.schedule-column {
-  background: rgba(255,255,255,0.03); 
-  border-radius: 12px; 
-  padding: 10px 8px;
-  border: 1px solid rgba(255,255,255,0.03);
-}
-
-/* ВИПРАВЛЕНО ПЕРЕНОС ТЕКСТУ В РЯДКАХ */
-.schedule-row { 
-  display: flex; 
-  justify-content: space-between; 
-  padding: 8px 6px; 
-  border-bottom: 1px solid rgba(255,255,255,0.05); 
-  font-size: 13px; 
-  align-items: center;
-  gap: 10px; /* Відстань між назвою та часом */
-}
-.schedule-row:last-child { border-bottom: none; }
-.schedule-row > span:first-child {
-  flex: 1 1 auto;
-  white-space: normal;
-  word-wrap: break-word;
-  line-height: 1.3;
-  text-align: left;
-}
-.schedule-row > span:last-child {
-  flex: 0 0 auto; /* Час не буде стискатися */
-}
-
-.row-highlight { background: rgba(255, 255, 255, 0.1) !important; border-radius: 6px; color: var(--highlight-color) !important; font-weight: 800; box-shadow: inset 0 1px 2px rgba(255,255,255,0.1); }
-.station-number { color: rgba(255,255,255,0.3); font-weight: 600; margin-right: 6px; font-size: 10px;}
-
-.time-green { color: var(--time-green); font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14px;}
-.time-passed { color: var(--time-passed); font-weight: 500; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14px;}
-.time-normal { color: #fff; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14px;}
+.time-green { color: var(--time-green); font-weight: bold; font-family: monospace; font-size: 13px;}
+.time-passed { color: var(--time-passed); font-weight: normal; font-family: monospace; font-size: 13px;}
+.time-normal { color: #fff; font-weight: bold; font-family: monospace; font-size: 13px;}
 
 /* ПРИМІТКИ ПРО ЗМІНИ */
-.details-note { text-align: center; font-weight: 600; color: #ff6b6b; margin-bottom: 10px; font-size: 12px; line-height: 1.5; background: rgba(255, 107, 107, 0.1); padding: 10px; border-radius: 10px; border: 1px solid rgba(255, 107, 107, 0.15);}
-.details-divider { width: 50%; height: 2px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); margin: 20px auto 15px; border-radius: 2px;}
+.details-note { text-align: center; font-weight: bold; color: #ff4d4d; margin-bottom: 10px; text-shadow: 0 0 5px rgba(0,0,0,0.5); font-size: 11px; line-height: 1.4; }
+.details-divider { width: 70%; height: 1px; background: rgba(255,255,255,0.2); margin: 15px auto 10px; }
 
 </style>
 </head>
@@ -291,7 +195,7 @@ body {
 <div class="container">
 
   <div class="top-row">
-    <div class="widget liquid-glass">
+    <div class="widget">
       <div class="datetime">
         <div id="date"></div>
         <div class="weekdays">
@@ -303,7 +207,7 @@ body {
       </div>
     </div>
 
-    <div class="widget liquid-glass">
+    <div class="widget">
       <div class="weather-box" id="weather-container"></div>
     </div>
   </div>
@@ -316,18 +220,18 @@ body {
       <button class="tab-btn" onclick="openTab('buses', this)">Автобуси</button>
     </div>
 
-    <div class="main-list-widget liquid-glass">
+    <div class="main-list-widget">
       
       <div id="trains" class="content-section active">
-        <div id="list" style="text-align: center; padding: 20px; font-weight: 600; color: rgba(255,255,255,0.5);">Завантаження розкладу електричок...</div>
+        <div id="list" style="text-align: center; padding: 20px;">Завантаження розкладу електричок...</div>
       </div>
 
       <div id="long-trains" class="content-section">
-        <div id="long-trains-list" style="text-align: center; padding: 20px; font-weight: 600; color: rgba(255,255,255,0.5);">Завантаження розкладу потягів...</div>
+        <div id="long-trains-list" style="text-align: center; padding: 20px;">Завантаження розкладу потягів...</div>
       </div>
 
       <div id="buses" class="content-section">
-        <div id="buses-list" style="text-align: center; padding: 20px; font-weight: 600; color: rgba(255,255,255,0.5);">Завантаження розкладу автобусів...</div>
+        <div id="buses-list" style="text-align: center; padding: 20px;">Завантаження розкладу автобусів...</div>
       </div>
 
     </div>
@@ -422,7 +326,7 @@ function renderGrid(data, isChanges = false, alwaysWhite = false) {
   let html = '<div class="schedule-grid">';
   
   for(let c = 0; c < 3; c++) {
-    html += '<div class="schedule-column">';
+    html += '<div class="schedule-column" style="background:rgba(255,255,255,0.05); border-radius:8px; padding:5px;">';
     for(let j = 0; j < perCol; j++) {
       const idx = c * perCol + j;
       if (idx < total) {
@@ -491,8 +395,9 @@ function renderTrains(el, data){
         <div class="time-val ${statusClass}">${displayText}</div>
       </div>
       <div class="details" id="${id}">
-        ${x.fullSchedule?.length > 0 ? renderGrid(x.fullSchedule) : "<div style='text-align:center; padding: 10px; color: rgba(255,255,255,0.4); font-weight: 500;'>Дані розкладу відсутні</div>"}
-        ${x.note && x.note !== "змін немає..." ? `<div class="details-divider"></div><div class="details-note">${x.note}</div>` : ''}
+        ${x.fullSchedule?.length > 0 ? renderGrid(x.fullSchedule) : "<div style='text-align:center; padding: 10px; color: #888;'>Дані розкладу відсутні</div>"}
+        <div class="details-divider"></div>
+        <div class="details-note">${x.note}</div>
         ${altScheduleHtml}
       </div>`;
   });
@@ -507,29 +412,29 @@ function renderLongTrains(el, data) {
     const id = "lt-" + x.number + "-" + index;
 
     let displayText = x.time;
+    // Завжди білий колір, без жодних додаткових стилів закреслення
     let extraStyle = 'style="color: #fff;"';
 
     const hasChanges = x.changes && x.changes.length > 0;
     
+    // Перетворюємо об'єкти зупинок на масив масивів для функції renderGrid
     const stopsMapped = x.stops ? x.stops.map(s => [s.station, s.time]) : [];
 
+    // Формуємо тексти періодичності та змін
     let infoHtml = "";
     if (x.periodicityText) {
       infoHtml += `<div class="details-divider"></div>
-                   <div class="details-note" style="color: #009ffd; background: rgba(0, 159, 253, 0.1); border-color: rgba(0, 159, 253, 0.15);">
-                     <b>Періодичність:</b><br><span style="color:rgba(255,255,255,0.7); font-weight:500;">${x.periodicityText}</span>
-                   </div>`;
+                   <div class="details-note" style="color: #04b6cb;"><b>Періодичність з початкової станції маршруту:</b><br><span style="color:#fff; font-weight:normal;">${x.periodicityText}</span></div>`;
     }
     if (hasChanges) {
       infoHtml += `<div class="details-divider"></div>
-                   <div class="details-note" style="color: var(--highlight-color); background: rgba(255, 204, 0, 0.1); border-color: rgba(255, 204, 0, 0.15);">
-                     <b>Зміни розкладу:</b>
-                     <ul style="margin: 8px 0 0 0; padding-left: 20px; text-align: left; font-weight: 500; color: rgba(255,255,255,0.8);">
-                       ${x.changes.map(c => `<li>${c}</li>`).join('')}
-                     </ul>
-                   </div>`;
+                   <div class="details-note" style="color: #ffcc00;"><b>Зміни розкладу:</b>
+                   <ul style="margin: 5px 0 0 0; padding-left: 20px; text-align: left; font-weight: normal; color: #fff;">
+                     ${x.changes.map(c => `<li>${c}</li>`).join('')}
+                   </ul></div>`;
     }
 
+    // Прибрано <span class="alert-dot"></span> біля номеру поїзда
     container.innerHTML += `
       <div class="train" onclick="document.getElementById('${id}').classList.toggle('open')">
         <div class="train-num-box">${x.number}</div>
@@ -537,13 +442,13 @@ function renderLongTrains(el, data) {
         <div class="time-val" ${extraStyle}>${displayText}</div>
       </div>
       <div class="details" id="${id}">
-        ${stopsMapped.length > 0 ? renderGrid(stopsMapped, false, true) : "<div style='text-align:center; padding: 10px; color: rgba(255,255,255,0.4); font-weight: 500;'>Дані розкладу відсутні</div>"}
+        ${stopsMapped.length > 0 ? renderGrid(stopsMapped, false, true) : "<div style='text-align:center; padding: 10px; color: #888;'>Дані розкладу відсутні</div>"}
         ${infoHtml}
       </div>`;
   });
 }
 
-// РЕНДЕР СПИСКУ АВТОБУСІВ (Оновлений для мобільних)
+// РЕНДЕР СПИСКУ АВТОБУСІВ
 function renderBuses(el, data) {
   el.innerHTML = `<div class="table-head"><div>Тип</div><div>Маршрут прямування</div><div>Статус</div></div><div id="buses-content"></div>`;
   const container = document.getElementById('buses-content');
@@ -557,23 +462,23 @@ function renderBuses(el, data) {
         rowsHtml += `<div class="schedule-row"><span>${row[0]}</span><span class="time-normal">${row[1]}</span></div>`;
       });
       colsHtml += `
-        <div class="schedule-column">
-          <div style="text-align:center; color:var(--highlight-color); font-size:12px; margin-bottom:12px; font-weight:800; text-transform:uppercase; letter-spacing: 0.5px; line-height:1.3; word-wrap: break-word;">${dir.title}</div>
+        <div class="schedule-column" style="background:rgba(255,255,255,0.05); border-radius:8px; padding:5px;">
+          <div style="text-align:center; color:var(--highlight-color); font-size:10px; margin-bottom:8px; font-weight:bold; text-transform:uppercase;">${dir.title}</div>
           ${rowsHtml}
         </div>
       `;
     });
 
-    const noteHtml = b.note ? `<div class="details-divider"></div><div class="details-note" style="color: #2af598; background: rgba(42, 245, 152, 0.1); border-color: rgba(42, 245, 152, 0.15);">${b.note}</div>` : '';
+    const noteHtml = b.note ? `<div class="details-divider"></div><div class="details-note" style="color: #88a8a4;">${b.note}</div>` : '';
 
     container.innerHTML += `
       <div class="train" onclick="this.nextElementSibling.classList.toggle('open')">
-        <div class="train-num-box" style="background: transparent; box-shadow: none; font-size: 20px;">🚌</div>
+        <div class="train-num-box">🚌</div>
         <div class="route-text">${b.route}</div>
-        <div class="time-val future" style="font-size:12px; text-transform:uppercase; letter-spacing: 1px;">Розклад ▾</div>
+        <div class="time-val future" style="font-size:12px; text-transform:uppercase;">Розклад ▾</div>
       </div>
       <div class="details">
-        <div class="bus-grid">
+        <div class="schedule-grid" style="grid-template-columns: 1fr 1fr;">
           ${colsHtml}
         </div>
         ${noteHtml}
