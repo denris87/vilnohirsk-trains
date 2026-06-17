@@ -58,6 +58,12 @@ app.get("/api/trains", (req, res) => {
       trainData.altSchedule = train.altSchedule;
     }
 
+    // Якщо є нове розклад (з 28 червня) - додаємо його
+    if (train.newSchedule) {
+      trainData.newSchedule = train.newSchedule;
+      trainData.newScheduleNote = train.newScheduleNote || "з 28 червня 2026 приміський поїзд курсує за цим розкладом:";
+    }
+
     return trainData;
   });
 
