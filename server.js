@@ -34,6 +34,19 @@ app.get("/api/trains", (req, res) => {
 
   const stationName = data.stationName;
 
+  // Список затримок із YAML (може бути відсутній або порожній)
+  const delays = Array.isArray(data.delays) ? data.delays : [];
+
+  // Готуємо зручний об'єкт однієї затримки для відправки на клієнт
+  const buildDelay = (d) => ({
+    number: d.number,
+    route: d.route || "—",
+    station: d.station || stationName,
+    minutes: d.delay,
+    text: `+${d.delay} хв`,
+    note: d.note || ""
+  });
+
   const result = data.trains.map(train => {
     // Шукаємо час відправлення конкретно з нашої станції
     const stop = train.schedule.find(s => s[0].includes(stationName));
@@ -64,12 +77,44 @@ app.get("/api/trains", (req, res) => {
       trainData.newScheduleNote = train.newScheduleNote || "з 28 червня 2026 приміський поїзд курсує за цим розкладом:";
     }
 
+    // Якщо для цього поїзда вписана затримка - прикріплюємо її до поїзда
+    const delayInfo = delays.find(d => String(d.number) === String(train.number));
+    if (delayInfo) {
+      trainData.delay = buildDelay(delayInfo);
+    }
+
     return trainData;
   });
 
   res.json({
     station: stationName,
-    trains: result
+    trains: result,
+    // Окремий список усіх затримок - зручно показувати окремим блоком на сайті
+    delays: delays.map(buildDelay)
+  });
+});
+
+// Окремий API лише зі списком затримок
+app.get("/api/delays", (req, res) => {
+  const data = loadSchedule();
+
+  if (!data) {
+    return res.status(500).json({ error: "Помилка завантаження розкладу" });
+  }
+
+  const stationName = data.stationName;
+  const delays = Array.isArray(data.delays) ? data.delays : [];
+
+  res.json({
+    station: stationName,
+    delays: delays.map(d => ({
+      number: d.number,
+      route: d.route || "—",
+      station: d.station || stationName,
+      minutes: d.delay,
+      text: `+${d.delay} хв`,
+      note: d.note || ""
+    }))
   });
 });
 
