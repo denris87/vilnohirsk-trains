@@ -19,9 +19,74 @@ function loadSchedule() {
   }
 }
 
+// Формуємо маршрут поїзда (перша → остання станція)
+function routeOf(train) {
+  if (train && Array.isArray(train.schedule) && train.schedule.length > 0) {
+    return `${train.schedule[0][0]} → ${train.schedule[train.schedule.length - 1][0]}`;
+  }
+  return "—";
+}
+
+// Шукаємо поїзд за номером (точний збіг або базовий номер без " new")
+function findTrainByNumber(trains, number) {
+  if (!number) return null;
+  const stripNew = (n) => String(n).replace(/\s*new\s*$/i, "").trim();
+  const target = String(number).trim();
+  const base = stripNew(number);
+  return (
+    trains.find(t => String(t.number).trim() === target) ||
+    trains.find(t => stripNew(t.number) === base) ||
+    null
+  );
+}
+
+// Перетворюємо сирий список затримок у зручний для сайту формат.
+// Показуємо лише записи, де є затримка у хвилинах (delayMinutes > 0)
+// або текстове пояснення (note/reason). Решта вважаються вимкненими.
+function buildDelays(data) {
+  const raw = Array.isArray(data.delays) ? data.delays : [];
+  const trains = Array.isArray(data.trains) ? data.trains : [];
+  const stationName = data.stationName || "";
+
+  return raw
+    .map(d => {
+      const minutes = Number(d.delayMinutes) || 0;
+      const note = d.note || d.reason || "";
+      if (!d.number || (minutes <= 0 && !note)) return null;
+
+      const train = findTrainByNumber(trains, d.number);
+      const route = d.route || routeOf(train);
+      const fromStation = d.fromStation || stationName;
+
+      return {
+        number: String(d.number).trim(),
+        route,
+        fromStation,
+        delayMinutes: minutes,
+        delayText: minutes > 0 ? `+${minutes} хв` : "",
+        note
+      };
+    })
+    .filter(Boolean);
+}
+
 // Головна сторінка
 app.get("/", (req, res) => {
   res.send("🚆 Сервер працює і віддає розклад з YAML!");
+});
+
+// API для оповіщень про затримки електричок
+app.get("/api/delays", (req, res) => {
+  const data = loadSchedule();
+
+  if (!data) {
+    return res.status(500).json({ error: "Помилка завантаження розкладу" });
+  }
+
+  res.json({
+    station: data.stationName,
+    delays: buildDelays(data)
+  });
 });
 
 // API, до якого звертається твій сайт
@@ -69,7 +134,8 @@ app.get("/api/trains", (req, res) => {
 
   res.json({
     station: stationName,
-    trains: result
+    trains: result,
+    delays: buildDelays(data)
   });
 });
 
