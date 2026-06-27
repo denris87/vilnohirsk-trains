@@ -102,17 +102,11 @@ app.get("/api/trains", (req, res) => {
   const result = data.trains.map(train => {
     // Шукаємо час відправлення конкретно з нашої станції
     const stop = train.schedule.find(s => s[0].includes(stationName));
-    
-    // Формуємо маршрут від першої до останньої станції
-    let routeStr = "—";
-    if (train.schedule.length > 0) {
-      routeStr = `${train.schedule[0][0]} → ${train.schedule[train.schedule.length - 1][0]}`;
-    }
 
     // Створюємо об'єкт для відправки на клієнт
     const trainData = {
       number: train.number,
-      route: routeStr,
+      route: routeOf(train),
       time: stop ? stop[1] : "—",
       fullSchedule: train.schedule,
       note: train.note || "змін немає..."
@@ -121,12 +115,6 @@ app.get("/api/trains", (req, res) => {
     // Якщо є альтернативний розклад - додаємо його
     if (train.altSchedule) {
       trainData.altSchedule = train.altSchedule;
-    }
-
-    // Якщо є нове розклад (з 28 червня) - додаємо його
-    if (train.newSchedule) {
-      trainData.newSchedule = train.newSchedule;
-      trainData.newScheduleNote = train.newScheduleNote || "з 28 червня 2026 приміський поїзд курсує за цим розкладом:";
     }
 
     return trainData;
