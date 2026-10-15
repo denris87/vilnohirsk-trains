@@ -19,6 +19,11 @@ function loadSchedule() {
   }
 }
 
+// Дата з YAML рядком: 2026-10-20 без лапок js-yaml читає як Date — повертаємо РРРР-ММ-ДД
+function dateText(value) {
+  return value instanceof Date ? value.toISOString().slice(0, 10) : String(value).trim();
+}
+
 // Головна сторінка
 app.get("/", (req, res) => {
   res.send("🚆 Сервер працює і віддає розклад з YAML!");
@@ -52,6 +57,11 @@ app.get("/api/trains", (req, res) => {
       fullSchedule: train.schedule,
       note: train.note || "змін немає..."
     };
+
+    // Зміна розкладу з певної дати - сайт показує за цими датами плашки:
+    // until - останній день курсування («КУРСУЄ до …»), from - перший день нового розкладу («НОВИЙ з …»)
+    if (train.until) trainData.until = dateText(train.until);
+    if (train.from) trainData.from = dateText(train.from);
 
     // Якщо є альтернативний розклад - додаємо його
     if (train.altSchedule) {
