@@ -62,6 +62,8 @@ app.get("/api/trains", (req, res) => {
     // until - останній день курсування («КУРСУЄ до …»), from - перший день нового розкладу («НОВИЙ з …»)
     if (train.until) trainData.until = dateText(train.until);
     if (train.from) trainData.from = dateText(train.from);
+    // badge - текст зеленої плашки на сайті, напр. «новий розклад»
+    if (train.badge) trainData.badge = String(train.badge).trim();
 
     // Якщо є альтернативний розклад - додаємо його
     if (train.altSchedule) {
